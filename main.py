@@ -1,3 +1,4 @@
+# https://dev.to/santhoshvijayabaskar/build-your-own-language-model-a-simple-guide-with-python-and-numpy-1k3l
 import numpy as np
 
 corpus = """ Good heavens! Lane! Why are there no cucumber sandwiches I ordered them specially
@@ -46,4 +47,32 @@ bigram_counts += 0.01
 # Normalize the counts to get probabilities
 bigram_probabilities = bigram_counts / bigram_counts.sum(axis=1, keepdims=True)
 
+def predict_next_word(current_word, bigram_probabilities):
+    word_idx = word_to_idx[current_word]
+    next_word_probs = bigram_probabilities[word_idx]
+    # randomly pick one
+    next_word_idx = np.random.choice(vocab_size, p=next_word_probs)
+    return idx_to_word[next_word_idx]
+
 print("Bigram probabilities matrix: ", bigram_probabilities)
+
+# Test the model with a word
+current_word = "cucumber"
+next_word = predict_next_word(current_word, bigram_probabilities)
+print(f"Given '{current_word}', the model predicts '{next_word}'.")
+# Given 'cucumber', the model predicts 'sandwiches'.
+
+def generate_sentence(start_word, bigram_probabilities, length=5):
+    sentence = [start_word]
+    current_word = start_word
+
+    for _ in range(length):
+        next_word = predict_next_word(current_word, bigram_probabilities)
+        sentence.append(next_word)
+        current_word = next_word
+
+    return ' '.join(sentence)
+
+generated_sentence = generate_sentence("cucumber", bigram_probabilities, length=10)
+print(f"Generated sentence: {generated_sentence}")
+# Generated sentence: cucumber sandwiches i went down twice no cucumbers in the market
